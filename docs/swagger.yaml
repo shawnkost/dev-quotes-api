@@ -1,0 +1,45 @@
+basePath: /v1
+definitions:
+  repository.Quote:
+    properties:
+      author:
+        type: string
+      id:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      text:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: shawnmkost@gmail.com
+    name: Shawn Kost
+    url: https://github.com/shawnkost
+  description: Public API for developer-related quotes
+  title: Dev Quotes API
+  version: "1.0"
+paths:
+  /quotes/random:
+    get:
+      description: Returns a single random quote from the dataset
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repository.Quote'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a random developer quote
+      tags:
+      - quotes
+swagger: "2.0"

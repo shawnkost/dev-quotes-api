@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1",
+    "author": "Grace Hopper",
+    "text": "The most dangerous phrase in the language is, 'We've always done it this way.'",
+    "tags": ["culture", "leadership"]
+  },
+  {
+    "id": "2",
+    "author": "Linus Torvalds",
+    "text": "Talk is cheap. Show me the code.",
+    "tags": ["programming", "open-source"]
+  },
+  {
+    "id": "3",
+    "author": "Donald Knuth",
+    "text": "Premature optimization is the root of all evil.",
+    "tags": ["performance", "programming"]
+  }
+]
