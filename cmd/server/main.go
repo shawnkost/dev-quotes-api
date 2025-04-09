@@ -1,10 +1,15 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/shawnkost/dev-quotes-api/docs" // Swagger docs
 	v1 "github.com/shawnkost/dev-quotes-api/internal/api/v1"
+	"github.com/shawnkost/dev-quotes-api/internal/config"
+	"github.com/shawnkost/dev-quotes-api/internal/errors"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
@@ -17,13 +22,21 @@ import (
 // @host localhost:8080
 // @BasePath /v1
 func main() {
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		fmt.Printf("Failed to load configuration: %v\n", err)
+		return
+	}
+
 	e := echo.New()
 
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(50)))
+	rateLimiter := middleware.NewRateLimiterMemoryStore(50)
+	e.Use(middleware.RateLimiter(rateLimiter))
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
@@ -45,6 +58,32 @@ func main() {
 		HSTSExcludeSubdomains: false,
 	}))
 
+	// Custom error handler
+	e.HTTPErrorHandler = func(err error, c echo.Context) {
+		var (
+			code    = http.StatusInternalServerError
+			message interface{}
+		)
+
+		if apiErr, ok := err.(*errors.APIError); ok {
+			code = apiErr.Code
+			message = apiErr
+		} else if he, ok := err.(*echo.HTTPError); ok {
+			code = he.Code
+			message = he.Message
+		} else {
+			message = errors.NewInternalError("internal server error")
+		}
+
+		// Log the error
+		c.Logger().Error(err)
+
+		// Send error response
+		if !c.Response().Committed {
+			c.JSON(code, message)
+		}
+	}
+
 	// Routes
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
@@ -53,5 +92,10 @@ func main() {
 	v1.RegisterRoutes(api)
 
 	// Start Server
-	e.Logger.Fatal(e.Start(":8080"))
+	s := &http.Server{
+		Addr:         ":" + cfg.Server.Port,
+		ReadTimeout:  cfg.Server.ReadTimeout,
+		WriteTimeout: cfg.Server.WriteTimeout,
+	}
+	e.Logger.Fatal(e.StartServer(s))
 }

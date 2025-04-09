@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"strings"
 
+	"github.com/shawnkost/dev-quotes-api/internal/errors"
 	"github.com/shawnkost/dev-quotes-api/internal/repository"
 )
 
@@ -15,7 +16,7 @@ func GetRandomQuote() (*repository.Quote, error) {
 	}
 
 	if len(quotes) == 0 {
-		return nil, nil // No quotes available
+		return nil, errors.NewNotFoundError("no quotes available")
 	}
 
 	randomIndex := rand.Intn(len(quotes))
@@ -23,6 +24,10 @@ func GetRandomQuote() (*repository.Quote, error) {
 }
 
 func GetQuoteByID(id string) (*repository.Quote, error) {
+	if id == "" {
+		return nil, errors.NewValidationError("quote ID is required")
+	}
+
 	quote, err := repository.GetQuoteByID(id)
 	if err != nil {
 		return nil, err
@@ -62,6 +67,9 @@ func GetFilteredQuotes(author string, tag string) ([]repository.Quote, error) {
 		}
 	}
 
-	return filteredQuotes, nil
+	if len(filteredQuotes) == 0 {
+		return nil, errors.NewNotFoundError("no quotes found matching the provided filters")
+	}
 
+	return filteredQuotes, nil
 }

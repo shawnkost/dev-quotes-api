@@ -4,11 +4,13 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/shawnkost/dev-quotes-api/internal/errors"
 	"github.com/shawnkost/dev-quotes-api/internal/service"
 )
 
-// RegisterRoutes registers all v1 routes
 func RegisterRoutes(g *echo.Group) {
+	RegisterHealthRoutes(g)
+
 	g.GET("/quotes", GetFilteredQuotesHandler)
 	g.GET("/quotes/:id", GetQuoteByIDHandler)
 	g.GET("/quotes/random", GetRandomQuoteHandler)
@@ -22,8 +24,8 @@ func RegisterRoutes(g *echo.Group) {
 // @Param author query string false "Author name"
 // @Param tag query string false "Tag name"
 // @Success 200 {array} repository.Quote
-// @Failure 404 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Failure 404 {object} errors.APIError
+// @Failure 500 {object} errors.APIError
 // @Router /quotes [get]
 func GetFilteredQuotesHandler(c echo.Context) error {
 	author := c.QueryParam("author")
@@ -31,9 +33,10 @@ func GetFilteredQuotesHandler(c echo.Context) error {
 
 	quotes, err := service.GetFilteredQuotes(author, tag)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to load quotes",
-		})
+		if apiErr, ok := err.(*errors.APIError); ok {
+			return c.JSON(apiErr.Code, apiErr)
+		}
+		return c.JSON(http.StatusInternalServerError, errors.NewInternalError("failed to load quotes"))
 	}
 
 	if len(quotes) == 0 {
@@ -52,15 +55,18 @@ func GetFilteredQuotesHandler(c echo.Context) error {
 // @Param id path string true "Quote ID"
 // @Produce json
 // @Success 200 {object} repository.Quote
-// @Failure 404 {object} map[string]string
+// @Failure 400 {object} errors.APIError
+// @Failure 404 {object} errors.APIError
+// @Failure 500 {object} errors.APIError
 // @Router /quotes/{id} [get]
 func GetQuoteByIDHandler(c echo.Context) error {
 	id := c.Param("id")
 	quote, err := service.GetQuoteByID(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to load quote",
-		})
+		if apiErr, ok := err.(*errors.APIError); ok {
+			return c.JSON(apiErr.Code, apiErr)
+		}
+		return c.JSON(http.StatusInternalServerError, errors.NewInternalError("failed to load quote"))
 	}
 
 	if quote == nil {
@@ -70,7 +76,6 @@ func GetQuoteByIDHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, quote)
-
 }
 
 // GetRandomQuoteHandler godoc
@@ -79,14 +84,16 @@ func GetQuoteByIDHandler(c echo.Context) error {
 // @Tags quotes
 // @Produce json
 // @Success 200 {object} repository.Quote
-// @Failure 500 {object} map[string]string
+// @Failure 404 {object} errors.APIError
+// @Failure 500 {object} errors.APIError
 // @Router /quotes/random [get]
 func GetRandomQuoteHandler(c echo.Context) error {
 	quote, err := service.GetRandomQuote()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to load quote",
-		})
+		if apiErr, ok := err.(*errors.APIError); ok {
+			return c.JSON(apiErr.Code, apiErr)
+		}
+		return c.JSON(http.StatusInternalServerError, errors.NewInternalError("failed to load quote"))
 	}
 
 	if quote == nil {
