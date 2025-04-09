@@ -16,5 +16,167 @@
     "author": "Donald Knuth",
     "text": "Premature optimization is the root of all evil.",
     "tags": ["performance", "programming"]
+  },
+  {
+    "id": "4",
+    "author": "Edsger Dijkstra",
+    "text": "Simplicity is prerequisite for reliability.",
+    "tags": ["simplicity", "reliability"]
+  },
+  {
+    "id": "5",
+    "author": "Bjarne Stroustrup",
+    "text": "There are only two kinds of languages: the ones people complain about and the ones nobody uses.",
+    "tags": ["languages", "popularity"]
+  },
+  {
+    "id": "6",
+    "author": "Alan Kay",
+    "text": "Simple things should be simple, complex things should be possible.",
+    "tags": ["simplicity", "complexity"]
+  },
+  {
+    "id": "7",
+    "author": "Brian Kernighan",
+    "text": "Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.",
+    "tags": ["debugging", "complexity"]
+  },
+  {
+    "id": "8",
+    "author": "Martin Fowler",
+    "text": "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",
+    "tags": ["readability", "programming"]
+  },
+  {
+    "id": "9",
+    "author": "Steve McConnell",
+    "text": "Good code is its own best documentation.",
+    "tags": ["documentation", "code quality"]
+  },
+  {
+    "id": "10",
+    "author": "Robert C. Martin",
+    "text": "Truth can only be found in one place: the code.",
+    "tags": ["truth", "code"]
+  },
+  {
+    "id": "11",
+    "author": "Ken Thompson",
+    "text": "When in doubt, use brute force.",
+    "tags": ["problem-solving", "brute force"]
+  },
+  {
+    "id": "12",
+    "author": "Donald Knuth",
+    "text": "Beware of bugs in the above code; I have only proved it correct, not tried it.",
+    "tags": ["bugs", "testing"]
+  },
+  {
+    "id": "13",
+    "author": "Jamie Zawinski",
+    "text": "Some people, when confronted with a problem, think 'I know, I'll use regular expressions.' Now they have two problems.",
+    "tags": ["regex", "problem-solving"]
+  },
+  {
+    "id": "14",
+    "author": "Phil Karlton",
+    "text": "There are only two hard things in Computer Science: cache invalidation and naming things.",
+    "tags": ["challenges", "naming"]
+  },
+  {
+    "id": "15",
+    "author": "Larry Wall",
+    "text": "The three chief virtues of a programmer are: Laziness, Impatience and Hubris.",
+    "tags": ["virtues", "programming"]
+  },
+  {
+    "id": "16",
+    "author": "Edsger Dijkstra",
+    "text": "The question of whether computers can think is like the question of whether submarines can swim.",
+    "tags": ["philosophy", "computers"]
+  },
+  {
+    "id": "17",
+    "author": "Alan Perlis",
+    "text": "A language that doesn't affect the way you think about programming is not worth knowing.",
+    "tags": ["languages", "thinking"]
+  },
+  {
+    "id": "18",
+    "author": "John Carmack",
+    "text": "Sometimes, the elegant implementation is just a function. Not a method. Not a class. Not a framework. Just a function.",
+    "tags": ["simplicity", "implementation"]
+  },
+  {
+    "id": "19",
+    "author": "Bjarne Stroustrup",
+    "text": "C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do, it blows your whole leg off.",
+    "tags": ["languages", "C++"]
+  },
+  {
+    "id": "20",
+    "author": "Linus Torvalds",
+    "text": "Intelligence is the ability to avoid doing work, yet getting the work done.",
+    "tags": ["efficiency", "intelligence"]
+  },
+  {
+    "id": "21",
+    "author": "Douglas Crockford",
+    "text": "JavaScript is the world's most misunderstood programming language.",
+    "tags": ["JavaScript", "misunderstanding"]
+  },
+  {
+    "id": "22",
+    "author": "Paul Graham",
+    "text": "The most important thing is to be able to think what you want, not to say what you want.",
+    "tags": ["thinking", "expression"]
+  },
+  {
+    "id": "23",
+    "author": "Tim Berners-Lee",
+    "text": "The Web does not just connect machines, it connects people.",
+    "tags": ["web", "connection"]
+  },
+  {
+    "id": "24",
+    "author": "Dennis Ritchie",
+    "text": "UNIX is basically a simple operating system, but you have to be a genius to understand the simplicity.",
+    "tags": ["UNIX", "simplicity"]
+  },
+  {
+    "id": "25",
+    "author": "Bill Gates",
+    "text": "Your most unhappy customers are your greatest source of learning.",
+    "tags": ["learning", "customers"]
+  },
+  {
+    "id": "26",
+    "author": "Marvin Minsky",
+    "text": "You don't understand anything until you learn it more than one way.",
+    "tags": ["understanding", "learning"]
+  },
+  {
+    "id": "27",
+    "author": "Richard Stallman",
+    "text": "Free software is a matter of liberty, not price.",
+    "tags": ["freedom", "software"]
+  },
+  {
+    "id": "28",
+    "author": "Niklaus Wirth",
+    "text": "Program development by stepwise refinement is not a mathematical theorem but a practical necessity.",
+    "tags": ["development", "refinement"]
+  },
+  {
+    "id": "29",
+    "author": "Guido van Rossum",
+    "text": "Code is read much more often than it is written.",
+    "tags": ["readability", "code"]
+  },
+  {
+    "id": "30",
+    "author": "James Gosling",
+    "text": "The good thing about reinventing the wheel is that you can get a round one.",
+    "tags": ["innovation", "reinvention"]
   }
 ]
