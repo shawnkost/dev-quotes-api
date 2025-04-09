@@ -10,8 +10,8 @@ import (
 // RegisterRoutes registers all v1 routes
 func RegisterRoutes(g *echo.Group) {
 	g.GET("/quotes", GetFilteredQuotesHandler)
-	g.GET("/quotes/random", GetRandomQuoteHandler)
 	g.GET("/quotes/:id", GetQuoteByIDHandler)
+	g.GET("/quotes/random", GetRandomQuoteHandler)
 }
 
 // GetFilteredQuotesHandler godoc
@@ -45,31 +45,6 @@ func GetFilteredQuotesHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, quotes)
 }
 
-// GetRandomQuoteHandler godoc
-// @Summary Get a random developer quote
-// @Description Returns a single random quote from the dataset
-// @Tags quotes
-// @Produce json
-// @Success 200 {object} repository.Quote
-// @Failure 500 {object} map[string]string
-// @Router /quotes/random [get]
-func GetRandomQuoteHandler(c echo.Context) error {
-	quote, err := service.GetRandomQuote()
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to load quote",
-		})
-	}
-
-	if quote == nil {
-		return c.JSON(http.StatusNotFound, map[string]string{
-			"error": "No quotes found",
-		})
-	}
-
-	return c.JSON(http.StatusOK, quote)
-}
-
 // GetQuoteByIDHandler godoc
 // @Summary Get quote by ID
 // @Description Retrieve a single quote by its unique ID
@@ -96,4 +71,29 @@ func GetQuoteByIDHandler(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, quote)
 
+}
+
+// GetRandomQuoteHandler godoc
+// @Summary Get a random developer quote
+// @Description Returns a single random quote from the dataset
+// @Tags quotes
+// @Produce json
+// @Success 200 {object} repository.Quote
+// @Failure 500 {object} map[string]string
+// @Router /quotes/random [get]
+func GetRandomQuoteHandler(c echo.Context) error {
+	quote, err := service.GetRandomQuote()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to load quote",
+		})
+	}
+
+	if quote == nil {
+		return c.JSON(http.StatusNotFound, map[string]string{
+			"error": "No quotes found",
+		})
+	}
+
+	return c.JSON(http.StatusOK, quote)
 }
