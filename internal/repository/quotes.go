@@ -27,3 +27,20 @@ func LoadQuotes() ([]Quote, error) {
 
 	return quotes, nil
 }
+
+func GetQuoteByID(id string) (*Quote, error) {
+	quotes, err := LoadQuotes()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, quote := range quotes {
+		if quote.ID == id {
+			return &quote, nil
+		}
+	}
+
+	// If no quote is found, return nil
+	return nil, nil
+
+}
