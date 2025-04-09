@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/shawnkost/dev-quotes-api/internal/errors"
 	"github.com/shawnkost/dev-quotes-api/internal/service"
+	"github.com/shawnkost/dev-quotes-api/internal/validation"
 )
 
 func RegisterRoutes(g *echo.Group) {
@@ -18,20 +19,40 @@ func RegisterRoutes(g *echo.Group) {
 
 // GetFilteredQuotesHandler godoc
 // @Summary Get all quotes filtered by tag or author
-// @Description Returns a list of quotes matching optional author and/or tag filters
+// @Description Returns a list of quotes matching optional author and/or tag filters with pagination
 // @Tags quotes
 // @Produce json
-// @Param author query string false "Author name"
-// @Param tag query string false "Tag name"
-// @Success 200 {array} repository.Quote
+// @Param author query string false "Author name (max 100 characters)"
+// @Param tag query string false "Tag name (max 50 characters)"
+// @Param page query int false "Page number (default: 1)"
+// @Param per_page query int false "Items per page (default: 10, max: 100)"
+// @Success 200 {object} service.PaginatedQuotes
+// @Failure 400 {object} errors.APIError
 // @Failure 404 {object} errors.APIError
+// @Failure 429 {object} errors.APIError "Rate limit exceeded"
 // @Failure 500 {object} errors.APIError
 // @Router /quotes [get]
+// @Security ApiKeyAuth
 func GetFilteredQuotesHandler(c echo.Context) error {
-	author := c.QueryParam("author")
-	tag := c.QueryParam("tag")
+	params, err := validation.ValidateQuoteQueryParams(
+		c.QueryParam("author"),
+		c.QueryParam("tag"),
+		c.QueryParam("page"),
+		c.QueryParam("per_page"),
+	)
+	if err != nil {
+		if apiErr, ok := err.(*errors.APIError); ok {
+			return c.JSON(apiErr.Code, apiErr)
+		}
+		return c.JSON(http.StatusBadRequest, errors.NewValidationError("invalid query parameters"))
+	}
 
-	quotes, err := service.GetFilteredQuotes(author, tag)
+	paginatedQuotes, err := service.GetPaginatedQuotes(
+		params.Author,
+		params.Tag,
+		params.Page,
+		params.PerPage,
+	)
 	if err != nil {
 		if apiErr, ok := err.(*errors.APIError); ok {
 			return c.JSON(apiErr.Code, apiErr)
@@ -39,13 +60,7 @@ func GetFilteredQuotesHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, errors.NewInternalError("failed to load quotes"))
 	}
 
-	if len(quotes) == 0 {
-		return c.JSON(http.StatusNotFound, map[string]string{
-			"error": "No quotes found matching the provided filters",
-		})
-	}
-
-	return c.JSON(http.StatusOK, quotes)
+	return c.JSON(http.StatusOK, paginatedQuotes)
 }
 
 // GetQuoteByIDHandler godoc
@@ -57,8 +72,10 @@ func GetFilteredQuotesHandler(c echo.Context) error {
 // @Success 200 {object} repository.Quote
 // @Failure 400 {object} errors.APIError
 // @Failure 404 {object} errors.APIError
+// @Failure 429 {object} errors.APIError "Rate limit exceeded"
 // @Failure 500 {object} errors.APIError
 // @Router /quotes/{id} [get]
+// @Security ApiKeyAuth
 func GetQuoteByIDHandler(c echo.Context) error {
 	id := c.Param("id")
 	quote, err := service.GetQuoteByID(id)
@@ -85,8 +102,10 @@ func GetQuoteByIDHandler(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} repository.Quote
 // @Failure 404 {object} errors.APIError
+// @Failure 429 {object} errors.APIError "Rate limit exceeded"
 // @Failure 500 {object} errors.APIError
 // @Router /quotes/random [get]
+// @Security ApiKeyAuth
 func GetRandomQuoteHandler(c echo.Context) error {
 	quote, err := service.GetRandomQuote()
 	if err != nil {

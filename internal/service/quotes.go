@@ -8,7 +8,6 @@ import (
 	"github.com/shawnkost/dev-quotes-api/internal/repository"
 )
 
-// GetRandomQuote returns a single random quote from the list.
 func GetRandomQuote() (*repository.Quote, error) {
 	quotes, err := repository.LoadQuotes()
 	if err != nil {
@@ -36,7 +35,17 @@ func GetQuoteByID(id string) (*repository.Quote, error) {
 	return quote, nil
 }
 
-func GetFilteredQuotes(author string, tag string) ([]repository.Quote, error) {
+type PaginatedQuotes struct {
+	Quotes      []repository.Quote `json:"quotes"`
+	Total       int                `json:"total"`
+	Page        int                `json:"page"`
+	PerPage     int                `json:"per_page"`
+	TotalPages  int                `json:"total_pages"`
+	HasNext     bool               `json:"has_next"`
+	HasPrevious bool               `json:"has_previous"`
+}
+
+func GetPaginatedQuotes(author, tag string, page, perPage int) (*PaginatedQuotes, error) {
 	quotes, err := repository.LoadQuotes()
 	if err != nil {
 		return nil, err
@@ -67,9 +76,31 @@ func GetFilteredQuotes(author string, tag string) ([]repository.Quote, error) {
 		}
 	}
 
-	if len(filteredQuotes) == 0 {
+	totalQuotes := len(filteredQuotes)
+	if totalQuotes == 0 {
 		return nil, errors.NewNotFoundError("no quotes found matching the provided filters")
 	}
 
-	return filteredQuotes, nil
+	totalPages := (totalQuotes + perPage - 1) / perPage
+	startIndex := (page - 1) * perPage
+	endIndex := startIndex + perPage
+	if endIndex > totalQuotes {
+		endIndex = totalQuotes
+	}
+
+	if startIndex >= totalQuotes {
+		return nil, errors.NewValidationError("page number out of range")
+	}
+
+	result := &PaginatedQuotes{
+		Quotes:      filteredQuotes[startIndex:endIndex],
+		Total:       totalQuotes,
+		Page:        page,
+		PerPage:     perPage,
+		TotalPages:  totalPages,
+		HasNext:     page < totalPages,
+		HasPrevious: page > 1,
+	}
+
+	return result, nil
 }

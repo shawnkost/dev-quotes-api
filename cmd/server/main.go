@@ -15,14 +15,13 @@ import (
 
 // @title Dev Quotes API
 // @version 1.0
-// @description Public API for developer-related quotes
+// @description Public API for developer-related quotes; Rate limiting is applied per IP address. Default rate limit is 50 requests per minute. Random quote endpoint has a higher limit of 100 requests per minute.
 // @contact.name Shawn Kost
 // @contact.url https://github.com/shawnkost
 // @contact.email shawnmkost@gmail.com
 // @host localhost:8080
 // @BasePath /v1
 func main() {
-	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {
 		fmt.Printf("Failed to load configuration: %v\n", err)
@@ -31,7 +30,6 @@ func main() {
 
 	e := echo.New()
 
-	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
@@ -58,7 +56,6 @@ func main() {
 		HSTSExcludeSubdomains: false,
 	}))
 
-	// Custom error handler
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
 		var (
 			code    = http.StatusInternalServerError
@@ -75,23 +72,18 @@ func main() {
 			message = errors.NewInternalError("internal server error")
 		}
 
-		// Log the error
 		c.Logger().Error(err)
 
-		// Send error response
 		if !c.Response().Committed {
 			c.JSON(code, message)
 		}
 	}
 
-	// Routes
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
-	// Quote API Routes
 	api := e.Group("/v1")
 	v1.RegisterRoutes(api)
 
-	// Start Server
 	s := &http.Server{
 		Addr:         ":" + cfg.Server.Port,
 		ReadTimeout:  cfg.Server.ReadTimeout,
