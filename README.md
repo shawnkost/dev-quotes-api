@@ -17,7 +17,7 @@ A public API for developer-related quotes. This API provides endpoints to retrie
 
 ### Prerequisites
 
-- Go 1.21 or higher
+- Go 1.23 or higher
 - Make (optional, for using Makefile commands)
 
 ### Installation
@@ -141,8 +141,6 @@ Please make sure to update tests as appropriate and follow the existing code sty
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-The MIT License is a permissive license that allows others to use, modify, and distribute your code while providing very basic requirements about preservation of copyright and license notices. This makes it perfect for open-source projects that want to encourage contributions and widespread use.
 
 ## Contact
 
