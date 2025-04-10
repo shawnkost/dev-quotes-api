@@ -1,8 +1,8 @@
 name: Deploy
 
 on:
-  push:
-    branches: [main]
+  release:
+    types: [published]
 
 jobs:
   deploy:
@@ -26,14 +26,17 @@ jobs:
           push: true
           tags: |
             shawnkost/dev-quotes-api:latest
-            shawnkost/dev-quotes-api:${{ github.sha }}
+            shawnkost/dev-quotes-api:${{ github.event.release.tag_name }}
 
-      - name: Deploy to Production
-        env:
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Deploy to Cloud Run
         run: |
-          # Add your deployment commands here
-          # Example for deploying to a cloud provider:
-          # - aws ecs update-service --cluster your-cluster --service your-service --force-new-deployment
-          # - or
-          # - gcloud run deploy dev-quotes-api --image shawnkost/dev-quotes-api:${{ github.ref_name }}
+          gcloud run deploy dev-quotes-api \
+            --image shawnkost/dev-quotes-api:${{ github.event.release.tag_name }} \
+            --platform managed \
+            --region us-west1 \
+            --allow-unauthenticated
