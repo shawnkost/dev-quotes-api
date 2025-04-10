@@ -6,13 +6,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// HealthResponse represents the health check response
 type HealthResponse struct {
 	Status  string `json:"status"`
 	Version string `json:"version"`
 }
 
-// RegisterHealthRoutes registers health check routes
 func RegisterHealthRoutes(g *echo.Group) {
 	g.GET("/health", HealthCheckHandler)
 }

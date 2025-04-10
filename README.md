@@ -86,8 +86,84 @@ GET /v1/quotes/:id
 ### Get Filtered Quotes
 
 ```
-GET /v1/quotes?author=<author>&tag=<tag>
+GET /v1/quotes?author=<author>&tag=<tag>&page=<page>&per_page=<per_page>
 ```
+
+## API Usage Guidelines
+
+### Rate Limiting
+
+The API implements rate limiting to ensure fair usage:
+
+- Default rate limit: 50 requests per minute per IP address
+
+### Pagination
+
+The filtered quotes endpoint supports pagination:
+
+- `page`: Page number (default: 1)
+- `per_page`: Items per page (default: 10, max: 100)
+- Response includes pagination metadata:
+  - `total`: Total number of quotes
+  - `page`: Current page number
+  - `per_page`: Items per page
+  - `total_pages`: Total number of pages
+  - `has_next`: Whether there is a next page
+  - `has_previous`: Whether there is a previous page
+
+### Example Responses
+
+#### Successful Response (Paginated Quotes)
+
+```json
+{
+  "quotes": [
+    {
+      "id": "1",
+      "author": "Martin Fowler",
+      "text": "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",
+      "tags": ["programming", "clean-code"]
+    }
+  ],
+  "total": 42,
+  "page": 1,
+  "per_page": 10,
+  "total_pages": 5,
+  "has_next": true,
+  "has_previous": false
+}
+```
+
+#### Error Response
+
+```json
+{
+  "type": "VALIDATION",
+  "message": "rate limit exceeded. please try again later",
+  "code": 429,
+  "details": {
+    "retry_after": 60
+  }
+}
+```
+
+## Error Handling
+
+The API uses standardized error responses:
+
+| Error Type | HTTP Code | Description                |
+| ---------- | --------- | -------------------------- |
+| NOT_FOUND  | 404       | Resource not found         |
+| VALIDATION | 400       | Invalid request parameters |
+| INTERNAL   | 500       | Server error               |
+| RATE_LIMIT | 429       | Rate limit exceeded        |
+
+All error responses include:
+
+- `type`: Error type identifier
+- `message`: Human-readable error message
+- `code`: HTTP status code
+- `details`: Additional error information (when applicable)
 
 ## Configuration
 
@@ -115,7 +191,7 @@ The application can be configured using environment variables:
 ```
 .
 ├── cmd/
-│   └── server/         # Application entry point
+│   └── server/        # Application entry point
 ├── internal/
 │   ├── api/           # API handlers
 │   ├── config/        # Configuration
@@ -123,7 +199,7 @@ The application can be configured using environment variables:
 │   ├── repository/    # Data access
 │   └── service/       # Business logic
 ├── configs/           # Configuration files
-└── docs/             # Generated documentation
+└── docs/              # Generated documentation
 ```
 
 ## Contributing

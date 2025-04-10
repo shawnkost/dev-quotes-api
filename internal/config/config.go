@@ -8,13 +8,11 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Config holds all configuration for the application
 type Config struct {
 	Server ServerConfig
 	API    APIConfig
 }
 
-// ServerConfig holds server-related configuration
 type ServerConfig struct {
 	Port         string
 	ReadTimeout  time.Duration
@@ -22,15 +20,12 @@ type ServerConfig struct {
 	Environment  string
 }
 
-// APIConfig holds API-related configuration
 type APIConfig struct {
 	RateLimit     int
 	RateLimitTime time.Duration
 }
 
-// Load loads configuration from environment variables
 func Load() (*Config, error) {
-	// load .env file if it exists
 	godotenv.Load()
 
 	config := &Config{
@@ -49,7 +44,6 @@ func Load() (*Config, error) {
 	return config, nil
 }
 
-// helper functions to get environment variables with defaults
 func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
@@ -75,12 +69,10 @@ func getDurationEnv(key string, defaultValue time.Duration) time.Duration {
 	return defaultValue
 }
 
-// IsDevelopment returns true if the environment is development
 func (c *Config) IsDevelopment() bool {
 	return c.Server.Environment == "development"
 }
 
-// IsProduction returns true if the environment is production
 func (c *Config) IsProduction() bool {
 	return c.Server.Environment == "production"
 }
