@@ -14,6 +14,7 @@ services:
       - WRITE_TIMEOUT=10s
       - RATE_LIMIT=50
       - RATE_LIMIT_TIME=1m
+      - LOG_LEVEL=debug
     volumes:
       - ./configs:/app/configs
     healthcheck:

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -10,6 +10,7 @@ import (
 	v1 "github.com/shawnkost/dev-quotes-api/internal/api/v1"
 	"github.com/shawnkost/dev-quotes-api/internal/config"
 	"github.com/shawnkost/dev-quotes-api/internal/errors"
+	"github.com/shawnkost/dev-quotes-api/internal/logger"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
@@ -22,15 +23,39 @@ import (
 // @host localhost:8080
 // @BasePath /v1
 func main() {
+	log := logger.Logger()
+
 	cfg, err := config.Load()
 	if err != nil {
-		fmt.Printf("Failed to load configuration: %v\n", err)
+		log.Fatal().Err(err).Msg("failed to load configuration")
 		return
 	}
 
 	e := echo.New()
 
-	e.Use(middleware.Logger())
+	// custom logger middleware
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			start := time.Now()
+			err := next(c)
+			latency := time.Since(start)
+
+			req := c.Request()
+			res := c.Response()
+
+			log.Info().
+				Str("method", req.Method).
+				Str("uri", req.RequestURI).
+				Int("status", res.Status).
+				Dur("latency", latency).
+				Str("ip", c.RealIP()).
+				Str("user_agent", req.UserAgent()).
+				Msg("request completed")
+
+			return err
+		}
+	})
+
 	e.Use(middleware.Recover())
 
 	rateLimiter := middleware.NewRateLimiterMemoryStore(50)
@@ -72,7 +97,13 @@ func main() {
 			message = errors.NewInternalError("internal server error")
 		}
 
-		c.Logger().Error(err)
+		log.Error().
+			Err(err).
+			Int("status", code).
+			Str("method", c.Request().Method).
+			Str("uri", c.Request().RequestURI).
+			Str("ip", c.RealIP()).
+			Msg("request failed")
 
 		if !c.Response().Committed {
 			c.JSON(code, message)
@@ -89,5 +120,13 @@ func main() {
 		ReadTimeout:  cfg.Server.ReadTimeout,
 		WriteTimeout: cfg.Server.WriteTimeout,
 	}
-	e.Logger.Fatal(e.StartServer(s))
+
+	log.Info().
+		Str("port", cfg.Server.Port).
+		Str("environment", cfg.Server.Environment).
+		Msg("starting server")
+
+	if err := e.StartServer(s); err != nil {
+		log.Fatal().Err(err).Msg("server failed to start")
+	}
 }
