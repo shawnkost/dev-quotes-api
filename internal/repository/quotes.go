@@ -8,6 +8,11 @@ import (
 	"github.com/shawnkost/dev-quotes-api/internal/errors"
 )
 
+type QuoteRepository interface {
+	LoadQuotes() ([]Quote, error)
+	GetQuoteByID(id string) (*Quote, error)
+}
+
 type Quote struct {
 	ID     string   `json:"id"`
 	Author string   `json:"author"`
@@ -15,9 +20,18 @@ type Quote struct {
 	Tags   []string `json:"tags"`
 }
 
-func LoadQuotes() ([]Quote, error) {
-	path := filepath.Join("configs", "quotes.json")
-	data, err := os.ReadFile(path)
+type FileQuoteRepository struct {
+	filePath string
+}
+
+func NewFileQuoteRepository() *FileQuoteRepository {
+	return &FileQuoteRepository{
+		filePath: filepath.Join("configs", "quotes.json"),
+	}
+}
+
+func (r *FileQuoteRepository) LoadQuotes() ([]Quote, error) {
+	data, err := os.ReadFile(r.filePath)
 	if err != nil {
 		return nil, errors.NewInternalError("failed to read quotes file")
 	}
@@ -30,8 +44,8 @@ func LoadQuotes() ([]Quote, error) {
 	return quotes, nil
 }
 
-func GetQuoteByID(id string) (*Quote, error) {
-	quotes, err := LoadQuotes()
+func (r *FileQuoteRepository) GetQuoteByID(id string) (*Quote, error) {
+	quotes, err := r.LoadQuotes()
 	if err != nil {
 		return nil, err
 	}
