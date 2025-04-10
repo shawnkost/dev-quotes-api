@@ -15,6 +15,7 @@ func RegisterRoutes(g *echo.Group) {
 	g.GET("/quotes", GetFilteredQuotesHandler)
 	g.GET("/quotes/:id", GetQuoteByIDHandler)
 	g.GET("/quotes/random", GetRandomQuoteHandler)
+	g.GET("/tags", GetAllTagsHandler)
 }
 
 // GetFilteredQuotesHandler godoc
@@ -122,4 +123,26 @@ func GetRandomQuoteHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, quote)
+}
+
+// GetAllTagsHandler godoc
+// @Summary Get all available tags
+// @Description Returns a list of all unique tags that can be used to filter quotes
+// @Tags quotes
+// @Produce json
+// @Success 200 {array} string
+// @Failure 429 {object} errors.APIError "Rate limit exceeded"
+// @Failure 500 {object} errors.APIError
+// @Router /tags [get]
+// @Security ApiKeyAuth
+func GetAllTagsHandler(c echo.Context) error {
+	tags, err := service.GetAllTags()
+	if err != nil {
+		if apiErr, ok := err.(*errors.APIError); ok {
+			return c.JSON(apiErr.Code, apiErr)
+		}
+		return c.JSON(http.StatusInternalServerError, errors.NewInternalError("failed to load tags"))
+	}
+
+	return c.JSON(http.StatusOK, tags)
 }

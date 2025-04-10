@@ -104,3 +104,24 @@ func GetPaginatedQuotes(author, tag string, page, perPage int) (*PaginatedQuotes
 
 	return result, nil
 }
+
+func GetAllTags() ([]string, error) {
+	quotes, err := repository.LoadQuotes()
+	if err != nil {
+		return nil, err
+	}
+
+	tagMap := make(map[string]struct{})
+	for _, quote := range quotes {
+		for _, tag := range quote.Tags {
+			tagMap[tag] = struct{}{}
+		}
+	}
+
+	tags := make([]string, 0, len(tagMap))
+	for tag := range tagMap {
+		tags = append(tags, tag)
+	}
+
+	return tags, nil
+}
