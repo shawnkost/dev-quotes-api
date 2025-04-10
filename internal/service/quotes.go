@@ -8,8 +8,18 @@ import (
 	"github.com/shawnkost/dev-quotes-api/internal/repository"
 )
 
-func GetRandomQuote() (*repository.Quote, error) {
-	quotes, err := repository.LoadQuotes()
+type QuoteService struct {
+	repo repository.QuoteRepository
+}
+
+func NewQuoteService(repo repository.QuoteRepository) *QuoteService {
+	return &QuoteService{
+		repo: repo,
+	}
+}
+
+func (s *QuoteService) GetRandomQuote() (*repository.Quote, error) {
+	quotes, err := s.repo.LoadQuotes()
 	if err != nil {
 		return nil, err
 	}
@@ -22,17 +32,12 @@ func GetRandomQuote() (*repository.Quote, error) {
 	return &quotes[randomIndex], nil
 }
 
-func GetQuoteByID(id string) (*repository.Quote, error) {
+func (s *QuoteService) GetQuoteByID(id string) (*repository.Quote, error) {
 	if id == "" {
 		return nil, errors.NewValidationError("quote ID is required")
 	}
 
-	quote, err := repository.GetQuoteByID(id)
-	if err != nil {
-		return nil, err
-	}
-
-	return quote, nil
+	return s.repo.GetQuoteByID(id)
 }
 
 type PaginatedQuotes struct {
@@ -45,8 +50,8 @@ type PaginatedQuotes struct {
 	HasPrevious bool               `json:"has_previous"`
 }
 
-func GetPaginatedQuotes(author, tag string, page, perPage int) (*PaginatedQuotes, error) {
-	quotes, err := repository.LoadQuotes()
+func (s *QuoteService) GetPaginatedQuotes(author, tag string, page, perPage int) (*PaginatedQuotes, error) {
+	quotes, err := s.repo.LoadQuotes()
 	if err != nil {
 		return nil, err
 	}
@@ -105,8 +110,8 @@ func GetPaginatedQuotes(author, tag string, page, perPage int) (*PaginatedQuotes
 	return result, nil
 }
 
-func GetAllTags() ([]string, error) {
-	quotes, err := repository.LoadQuotes()
+func (s *QuoteService) GetAllTags() ([]string, error) {
+	quotes, err := s.repo.LoadQuotes()
 	if err != nil {
 		return nil, err
 	}
