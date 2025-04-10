@@ -5,9 +5,17 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/shawnkost/dev-quotes-api/internal/errors"
+	"github.com/shawnkost/dev-quotes-api/internal/repository"
 	"github.com/shawnkost/dev-quotes-api/internal/service"
 	"github.com/shawnkost/dev-quotes-api/internal/validation"
 )
+
+var quoteService *service.QuoteService
+
+func init() {
+	repo := repository.NewFileQuoteRepository()
+	quoteService = service.NewQuoteService(repo)
+}
 
 func RegisterRoutes(g *echo.Group) {
 	RegisterHealthRoutes(g)
@@ -48,7 +56,7 @@ func GetFilteredQuotesHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errors.NewValidationError("invalid query parameters"))
 	}
 
-	paginatedQuotes, err := service.GetPaginatedQuotes(
+	paginatedQuotes, err := quoteService.GetPaginatedQuotes(
 		params.Author,
 		params.Tag,
 		params.Page,
@@ -79,7 +87,7 @@ func GetFilteredQuotesHandler(c echo.Context) error {
 // @Security ApiKeyAuth
 func GetQuoteByIDHandler(c echo.Context) error {
 	id := c.Param("id")
-	quote, err := service.GetQuoteByID(id)
+	quote, err := quoteService.GetQuoteByID(id)
 	if err != nil {
 		if apiErr, ok := err.(*errors.APIError); ok {
 			return c.JSON(apiErr.Code, apiErr)
@@ -108,7 +116,7 @@ func GetQuoteByIDHandler(c echo.Context) error {
 // @Router /quotes/random [get]
 // @Security ApiKeyAuth
 func GetRandomQuoteHandler(c echo.Context) error {
-	quote, err := service.GetRandomQuote()
+	quote, err := quoteService.GetRandomQuote()
 	if err != nil {
 		if apiErr, ok := err.(*errors.APIError); ok {
 			return c.JSON(apiErr.Code, apiErr)
@@ -136,7 +144,7 @@ func GetRandomQuoteHandler(c echo.Context) error {
 // @Router /tags [get]
 // @Security ApiKeyAuth
 func GetAllTagsHandler(c echo.Context) error {
-	tags, err := service.GetAllTags()
+	tags, err := quoteService.GetAllTags()
 	if err != nil {
 		if apiErr, ok := err.(*errors.APIError); ok {
 			return c.JSON(apiErr.Code, apiErr)
