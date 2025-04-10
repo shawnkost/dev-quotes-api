@@ -89,6 +89,20 @@ GET /v1/quotes/:id
 GET /v1/quotes?author=<author>&tag=<tag>&page=<page>&per_page=<per_page>
 ```
 
+### Get All Tags
+
+```
+GET /v1/tags
+```
+
+Returns a list of all unique tags that can be used to filter quotes.
+
+Example Response:
+
+```json
+["programming", "open-source", "simplicity", "reliability", "performance"]
+```
+
 ## API Usage Guidelines
 
 ### Rate Limiting
